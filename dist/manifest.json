@@ -1,0 +1,33 @@
+{
+  "name": "Chrome Workspaces",
+  "version": "1.0",
+  "description": "Allows handling workspaces in Chrome",
+  "permissions": ["declarativeContent", "storage", "tabs", "activeTab"],
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "img/tabs_16.png",
+      "32": "img/tabs_32.png",
+      "128": "img/tabs_128.png"
+    }
+  },
+  "icons": {
+    "16": "img/tabs_16.png",
+    "32": "img/tabs_32.png",
+    "128": "img/tabs_128.png"
+  },
+  "manifest_version": 2,
+  "commands": {
+    "switch-workspace": {
+      "suggested_key": {
+        "default": "Alt+P",
+        "mac": "Alt+P"
+      },
+      "description": "Switch workspace"
+    }
+  },
+  "background": {
+    "scripts": ["background.js"],
+    "persistent": false
+  }
+}

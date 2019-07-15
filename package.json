@@ -1,0 +1,12 @@
+{
+  "name": "chrome-workspace",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/chrome": "^0.0.86"
+  },
+  "scripts": {
+    "build": "rm -rf ./dist/*; tsc; cp -rf ./src/manifest.json ./src/popup.html ./src/img ./dist"
+  }
+}
