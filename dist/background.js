@@ -41,7 +41,6 @@ const getCurrentTabs = () => new Promise(resolve => {
 const switchWorkspace = (currentWorkspace, newName) => __awaiter(this, void 0, void 0, function* () {
     const currentTabs = yield getCurrentTabs();
     const { workspaces } = yield storage.get(['workspaces']);
-    console.log({ currentWorkspace, newName, workspaces });
     if (workspaces[newName]) {
         const newState = {
             currentWorkspace: newName,
@@ -85,7 +84,6 @@ const deleteWorkspace = (name) => __awaiter(this, void 0, void 0, function* () {
     loadWorkspaces();
 });
 chrome.runtime.onMessage.addListener((message) => {
-    console.log(message);
     switch (message.type) {
         case 'switchWorkspace':
             switchWorkspace(message.currentWorkspace, message.newName);
@@ -106,4 +104,21 @@ chrome.runtime.onInstalled.addListener(() => {
         workspaces: {}
     });
 });
+chrome.commands.onCommand.addListener((command) => __awaiter(this, void 0, void 0, function* () {
+    if (command === 'switch-workspace') {
+        const { workspaces, currentWorkspace } = yield storage.get(['workspaces', 'currentWorkspace']);
+        const availableWorkspaces = Object.keys(workspaces).filter(key => key !== currentWorkspace);
+        if (availableWorkspaces.length === 0) {
+            alert('Your current workspace is the only one you have. Unable to switch.');
+        }
+        else {
+            const newWorkspaceIndex = prompt(`Which workspace do you want to switch to ? (Provide number)\n${availableWorkspaces
+                .map((wp, idx) => `${idx}: ${wp}`)
+                .join('\n')}`);
+            if (newWorkspaceIndex && availableWorkspaces[newWorkspaceIndex]) {
+                switchWorkspace(currentWorkspace, availableWorkspaces[newWorkspaceIndex]);
+            }
+        }
+    }
+}));
 //# sourceMappingURL=background.js.map

@@ -13,9 +13,9 @@ interface StorageResponse {
 }
 
 const storage = {
-  get: (keys: string[]): Promise<Storage> =>
+  get: (keys: string[]): Promise<StorageResponse> =>
     new Promise(resolve => {
-      chrome.storage.local.get(keys, (res: Storage) => {
+      chrome.storage.local.get(keys, (res: StorageResponse) => {
         resolve(res);
       });
     }),
@@ -62,8 +62,6 @@ const getCurrentTabs = (): Promise<chrome.tabs.Tab[]> =>
 const switchWorkspace = async (currentWorkspace: string, newName: string) => {
   const currentTabs = await getCurrentTabs();
   const { workspaces } = <{ workspaces: Workspaces }>await storage.get(['workspaces']);
-
-  console.log({ currentWorkspace, newName, workspaces });
 
   if (workspaces[newName]) {
     const newState: Storage = {
@@ -117,7 +115,6 @@ const deleteWorkspace = async (name: string) => {
 
 chrome.runtime.onMessage.addListener(
   (message): void | boolean => {
-    console.log(message);
     switch (message.type) {
       case 'switchWorkspace':
         switchWorkspace(message.currentWorkspace, message.newName);
@@ -139,6 +136,25 @@ chrome.runtime.onInstalled.addListener(() => {
   storage.set({
     workspaces: {}
   });
+});
+
+chrome.commands.onCommand.addListener(async command => {
+  if (command === 'switch-workspace') {
+    const { workspaces, currentWorkspace } = await storage.get(['workspaces', 'currentWorkspace']);
+    const availableWorkspaces = Object.keys(workspaces).filter(key => key !== currentWorkspace);
+    if (availableWorkspaces.length === 0) {
+      alert('Your current workspace is the only one you have. Unable to switch.');
+    } else {
+      const newWorkspaceIndex = prompt(
+        `Which workspace do you want to switch to ? (Provide number)\n${availableWorkspaces
+          .map((wp, idx) => `${idx}: ${wp}`)
+          .join('\n')}`
+      );
+      if (newWorkspaceIndex && availableWorkspaces[newWorkspaceIndex]) {
+        switchWorkspace(currentWorkspace, availableWorkspaces[newWorkspaceIndex]);
+      }
+    }
+  }
 });
 
 export {};
