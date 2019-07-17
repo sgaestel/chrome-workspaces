@@ -63,9 +63,13 @@
         }
     };
     chrome.runtime.sendMessage({ type: 'loadWorkspaces' });
-    const createWorkspace = document.getElementById('createWorkspace');
+    const createWorkspace = document.getElementById('createBtn');
     createWorkspace.onclick = () => {
         chrome.runtime.sendMessage({ type: 'createWorkspace' });
+    };
+    const createEmptyWorkspace = document.getElementById('createEmptyBtn');
+    createEmptyWorkspace.onclick = () => {
+        chrome.runtime.sendMessage({ type: 'createWorkspace', empty: true });
     };
     chrome.runtime.onMessage.addListener(message => {
         switch (message.type) {

@@ -40,7 +40,7 @@
         align-self: stretch;
         cursor: pointer;
       }
-      #createBtn {
+      button {
         border: none;
         height: 25px;
         border-radius: 5px;
@@ -49,12 +49,15 @@
         box-shadow: 0px 1px 5px 0px rgba(0, 0, 0, 0.2), 0px 2px 2px 0px rgba(0, 0, 0, 0.14),
           0px 3px 1px -2px rgba(0, 0, 0, 0.12);
       }
-      #createBtn:active {
+      button:active {
         box-shadow: 0px 5px 5px -3px rgba(0, 0, 0, 0.2), 0px 8px 10px 1px rgba(0, 0, 0, 0.14),
           0px 3px 14px 2px rgba(0, 0, 0, 0.12);
       }
-      #createBtn:focus {
+      button:focus {
         outline: none;
+      }
+      #createBtn {
+        margin-right: 10px;
       }
     </style>
   </head>
@@ -67,7 +70,10 @@
       <h4>Workspaces</h4>
       <div id="workspaces"></div>
     </div>
-    <div id="createWorkspace"><button id="createBtn">Save new workspace</button></div>
+    <div id="createWorkspace">
+      <h4>Create workspace</h4>
+      <button id="createBtn">Current tabs as</button><button id="createEmptyBtn">Empty</button>
+    </div>
     <script src="popup.js"></script>
   </body>
 </html>

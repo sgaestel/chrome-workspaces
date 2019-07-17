@@ -81,20 +81,29 @@ const switchWorkspace = async (currentWorkspace: string, newName: string) => {
   }
 };
 
-const createWorkspace = async (): Promise<void> => {
-  const persistWorkspace = async (name: string, workspaces): Promise<void> => {
+const createWorkspace = async (empty: boolean | undefined): Promise<void> => {
+  const persistWorkspace = async (name: string, workspaces: Workspaces, currentWorkspace: string): Promise<void> => {
     const currentTabs = await getCurrentTabs();
-    return storage.set({ currentWorkspace: name, workspaces: { ...workspaces, [name]: currentTabs } });
+    const newStorage = { currentWorkspace: name, workspaces: { ...workspaces } };
+    if (empty) {
+      newStorage.workspaces[currentWorkspace] = currentTabs;
+      newStorage.workspaces[name] = [];
+      await closeTabs(currentTabs.map(tab => <number>tab.id));
+    } else {
+      newStorage[name] = currentTabs;
+    }
+
+    return storage.set(newStorage);
   };
 
   const name = prompt('Workspace name');
   if (name) {
-    const { workspaces } = <{ workspaces: Workspaces }>await storage.get(['workspaces']);
+    const { currentWorkspace, workspaces } = await storage.get(['workspaces', 'currentWorkspace']);
     if (workspaces && workspaces[name]) {
       const override = confirm(`Workspace ${name} already exists. Do you want to override it ?`);
-      override && (await persistWorkspace(name, workspaces));
+      override && (await persistWorkspace(name, workspaces, currentWorkspace));
     } else {
-      await persistWorkspace(name, workspaces);
+      await persistWorkspace(name, workspaces, currentWorkspace);
     }
   }
   loadWorkspaces();
@@ -120,7 +129,7 @@ chrome.runtime.onMessage.addListener(
         switchWorkspace(message.currentWorkspace, message.newName);
         break;
       case 'createWorkspace':
-        createWorkspace();
+        createWorkspace(message.empty);
         break;
       case 'loadWorkspaces':
         loadWorkspaces();
@@ -132,10 +141,13 @@ chrome.runtime.onMessage.addListener(
   }
 );
 
-chrome.runtime.onInstalled.addListener(() => {
-  storage.set({
-    workspaces: {}
-  });
+chrome.runtime.onInstalled.addListener(async () => {
+  const { workspaces } = await storage.get(['workspaces']);
+  if (!workspaces) {
+    storage.set({
+      workspaces: {}
+    });
+  }
 });
 
 chrome.commands.onCommand.addListener(async command => {
@@ -146,9 +158,9 @@ chrome.commands.onCommand.addListener(async command => {
       alert('Your current workspace is the only one you have. Unable to switch.');
     } else {
       const newWorkspaceIndex = prompt(
-        `Which workspace do you want to switch to ? (Provide number)\n${availableWorkspaces
-          .map((wp, idx) => `${idx}: ${wp}`)
-          .join('\n')}`
+        `Which workspace do you want to switch to ? (Provide number)
+
+        ${availableWorkspaces.map((wp, idx) => `${idx}: ${wp}`).join('\n')}`
       );
       if (newWorkspaceIndex && availableWorkspaces[newWorkspaceIndex]) {
         switchWorkspace(currentWorkspace, availableWorkspaces[newWorkspaceIndex]);

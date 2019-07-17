@@ -95,9 +95,14 @@
 
   chrome.runtime.sendMessage({ type: 'loadWorkspaces' });
 
-  const createWorkspace = <HTMLElement>document.getElementById('createWorkspace');
+  const createWorkspace = <HTMLElement>document.getElementById('createBtn');
   createWorkspace.onclick = () => {
     chrome.runtime.sendMessage({ type: 'createWorkspace' });
+  };
+
+  const createEmptyWorkspace = <HTMLElement>document.getElementById('createEmptyBtn');
+  createEmptyWorkspace.onclick = () => {
+    chrome.runtime.sendMessage({ type: 'createWorkspace', empty: true });
   };
 
   chrome.runtime.onMessage.addListener(message => {
