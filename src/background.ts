@@ -158,9 +158,9 @@ chrome.commands.onCommand.addListener(async command => {
       alert('Your current workspace is the only one you have. Unable to switch.');
     } else {
       const newWorkspaceIndex = prompt(
-        `Which workspace do you want to switch to ? (Provide number)
-
-        ${availableWorkspaces.map((wp, idx) => `${idx}: ${wp}`).join('\n')}`
+        `Which workspace do you want to switch to ? (Provide number)\n\n${availableWorkspaces
+          .map((wp, idx) => `${idx}: ${wp}`)
+          .join('\n')}`
       );
       if (newWorkspaceIndex && availableWorkspaces[newWorkspaceIndex]) {
         switchWorkspace(currentWorkspace, availableWorkspaces[newWorkspaceIndex]);
